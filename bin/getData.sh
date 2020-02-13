@@ -38,11 +38,11 @@ sequenceFile=${data}/rawPanGenomes/${label}.seq.tsv
 echo -e "seq_name\taln_name\tseq_path\tannotation_path" > $sequenceFile
 
 ## print entries:
-echo -e "NC_010437\tseq0\t"${cwd}/${label}0.ffn"\tNA"	>> $sequenceFile
-echo -e "NC_014470\tseq1\t"${cwd}/${label}1.ffn"\tNA"	>> $sequenceFile
-echo -e "NC_022103\tseq2\t"${cwd}/${label}2.ffn"\tNA"	>> $sequenceFile
-echo -e "NC_018871\tseq3\t"${cwd}/${label}3.ffn"\tNA"	>> $sequenceFile
-echo -e "NC_034440\tseq4\t"${cwd}/${label}4.ffn"\tNA"	>> $sequenceFile
+echo -e "NC_010437\tseq0\t"${data}/rawPanGenomes/${label}0.ffn"\tNA"	>> $sequenceFile
+echo -e "NC_014470\tseq1\t"${data}/rawPanGenomes/${label}1.ffn"\tNA"	>> $sequenceFile
+echo -e "NC_022103\tseq2\t"${data}/rawPanGenomes/${label}2.ffn"\tNA"	>> $sequenceFile
+echo -e "NC_018871\tseq3\t"${data}/rawPanGenomes/${label}3.ffn"\tNA"	>> $sequenceFile
+echo -e "NC_034440\tseq4\t"${data}/rawPanGenomes/${label}4.ffn"\tNA"	>> $sequenceFile
 
 
 

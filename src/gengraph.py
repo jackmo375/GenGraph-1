@@ -317,7 +317,8 @@ def extract_region_subgraph(graph, region_start, region_stop, seq_name, neighbou
 
 
 def input_parser(file_path, parse_as='default'):
-	if file_path[-3:] == ".fa" or file_path[-6:] == ".fasta":
+
+	if file_path[-3:] == ".fa" or file_path[-6:] == ".fasta" or file_path[-4:] == ".ffn":
 		input_file = open(file_path, "r")
 		output_list = []
 		# set variables
@@ -366,7 +367,7 @@ def input_parser(file_path, parse_as='default'):
 		result = numpy.array(data_matrix)
 		return result
 		
-	if file_path[-4:] == ".txt":
+	if file_path[-4:] == ".txt" or file_path[-4:] == ".tsv":
 		list_of_dicts  = []
 		reader = csv.DictReader(open(file_path, 'r'), delimiter='\t')
 		for row in reader:
@@ -523,6 +524,8 @@ def input_parser(file_path, parse_as='default'):
 					entry_dict = {'CHROM':entries[0], 'LOCUS':LOCUS, 'START':entries[3], 'STOP':entries[4], 'STRAND':entries[6], 'SYMBOL':SYMBOL, 'INFO':entries_extra_info, 'NOTE':NOTE}
 					list_of_dicts.append(entry_dict)
 		return list_of_dicts
+	else:
+		raise ValueError('GENGRAPH ERROR: input data file extension not recognised')
 
 
 def reshape_fastaObj(in_obj):
@@ -668,10 +671,10 @@ def add_missing_nodes(a_graph, input_dict):
 
 		presorted_list = []
 		for a_node in isolate_node_list:
-			presorted_list.append((a_node, abs(a_graph.node[a_node][isolate + '_leftend']), abs(a_graph.node[a_node][isolate + '_rightend'])))
-			if abs(a_graph.node[a_node][isolate + '_leftend']) > abs(a_graph.node[a_node][isolate + '_rightend']):
-				logging.warning('problem node' + str(a_node))
-				logging.warning(a_graph.node[a_node][isolate + '_leftend'])
+			presorted_list.append((a_node, abs(a_graph.nodes[a_node][isolate + '_leftend']), abs(a_graph.nodes[a_node][isolate + '_rightend'])))
+			if abs(a_graph.nodes[a_node][isolate + '_leftend']) > abs(a_graph.nodes[a_node][isolate + '_rightend']):
+				logging.warning('(GenGraph) problem node: ' + str(a_node))
+				logging.warning(a_graph.nodes[a_node][isolate + '_leftend'])
 
 		sorted_list = sorted(presorted_list, key=itemgetter(1))
 
@@ -693,7 +696,7 @@ def add_missing_nodes(a_graph, input_dict):
 
 
 def node_check(a_graph):
-	from operator import itemgetter
+	from operator import itemgetter	# (Jack) is it a good idea to have an import inside a function?
 	logging.info('checking nodes')
 	doespass = True
 
@@ -708,10 +711,10 @@ def node_check(a_graph):
 		#print isolate_node_list
 		presorted_list = []
 		for a_node in isolate_node_list:
-			presorted_list.append((a_node, abs(int(a_graph.node[a_node][isolate + '_leftend'])), abs(int(a_graph.node[a_node][isolate + '_rightend']))))
-			if abs(int(a_graph.node[a_node][isolate + '_leftend'])) > abs(int(a_graph.node[a_node][isolate + '_rightend'])):
-				logging.warning('problem node', a_node)
-				logging.warning(a_graph.node[a_node][isolate + '_leftend'])
+			presorted_list.append((a_node, abs(int(a_graph.nodes[a_node][isolate + '_leftend'])), abs(int(a_graph.nodes[a_node][isolate + '_rightend']))))
+			if abs(int(a_graph.nodes[a_node][isolate + '_leftend'])) > abs(int(a_graph.nodes[a_node][isolate + '_rightend'])):
+				logging.warning('(GenGraph) problem node: ', a_node)
+				logging.warning(a_graph.nodes[a_node][isolate + '_leftend'])
 
 		sorted_list = sorted(presorted_list,key=itemgetter(1))
 
@@ -765,10 +768,10 @@ def refine_initGraph(a_graph):
 
 		presorted_list = []
 		for a_node in isolate_node_list:
-			presorted_list.append((a_node, abs(a_graph.node[a_node][isolate + '_leftend']), abs(a_graph.node[a_node][isolate + '_rightend'])))
-			if abs(a_graph.node[a_node][isolate + '_leftend']) > abs(a_graph.node[a_node][isolate + '_rightend']):
-				logging.warning('problem node' + str(a_node))
-				logging.warning(a_graph.node[a_node][isolate + '_leftend'])
+			presorted_list.append((a_node, abs(a_graph.nodes[a_node][isolate + '_leftend']), abs(a_graph.nodes[a_node][isolate + '_rightend'])))
+			if abs(a_graph.nodes[a_node][isolate + '_leftend']) > abs(a_graph.nodes[a_node][isolate + '_rightend']):
+				logging.warning('(GenGraph) problem node: ' + str(a_node))
+				logging.warning(a_graph.nodes[a_node][isolate + '_leftend'])
 
 		sorted_list = sorted(presorted_list, key=itemgetter(1))
 
@@ -827,6 +830,7 @@ def bbone_to_initGraph(bbone_file, input_dict):
 		iso_largest_node[iso] = 0
 
 	for iso in all_iso_in_graph_list:
+		print(iso)
 		iso_length = len(input_parser(input_dict[1][iso])[0]['DNA_seq'])
 		iso_length_dict[iso] = iso_length
 
@@ -934,7 +938,7 @@ def bbone_to_initGraph(bbone_file, input_dict):
 	return genome_network
 
 
-def realign_all_nodes(inGraph, input_dict):
+def realign_all_nodes(inGraph, input_dict, out_file_path='./'):
 	logging.info('Running realign_all_nodes')
 
 	realign_node_list = []
@@ -955,7 +959,7 @@ def realign_all_nodes(inGraph, input_dict):
 
 		inGraph = local_node_realign_new(inGraph, a_node, input_dict[1])
 
-	nx.write_graphml(inGraph, 'intermediate_split_unlinked.xml')
+	nx.write_graphml(inGraph, out_file_path + 'intermediate_split_unlinked.xml')
 
 	return inGraph
 
@@ -1018,12 +1022,14 @@ def link_nodes(graph_obj, sequence_name, node_prefix='gn'):
 
 		if (node_1, node_2) in edges_obj:
 
+			'''
 			print(node_1)
 			print(node_2)
 			nx.write_graphml(graph_obj, 'problemG')
 			print(graph_obj.get_edge_data(node_1, node_2))
 			print(graph_obj.get_edge_data(node_1, node_2)[0]['ids'])
 			print(graph_obj.get_edge_data(node_1, node_2)[0]['ids'].split(','))
+			'''
 
 			if sequence_name not in graph_obj.get_edge_data(node_1, node_2)[0]['ids'].split(','):
 
@@ -1154,7 +1160,7 @@ def add_sequences_to_graph_fastaObj(graph_obj, imported_fasta_object):
 
 			node_seq = ref_seq[seq_start:seq_end].upper()
 
-			graph_obj.node[node]['sequence'] = node_seq
+			graph_obj.nodes[node]['sequence'] = node_seq
 
 	return graph_obj
 
@@ -1733,8 +1739,8 @@ def fasta_alignment_to_subnet(fasta_aln_file, true_start={}, node_prefix='X', or
 			for block_isolate in block_group:
 				if orientation[block_isolate] == '+':
 
-					local_node_network.node[new_node_name][block_isolate + '_leftend'] = int(start_block_list[count]['relative_pos'][block_isolate])
-					local_node_network.node[new_node_name][block_isolate + '_rightend'] = int(end_block_list[count]['relative_pos'][block_isolate])
+					local_node_network.nodes[new_node_name][block_isolate + '_leftend'] = int(start_block_list[count]['relative_pos'][block_isolate])
+					local_node_network.nodes[new_node_name][block_isolate + '_rightend'] = int(end_block_list[count]['relative_pos'][block_isolate])
 
 				elif orientation[block_isolate] == '-':
 
@@ -1743,8 +1749,8 @@ def fasta_alignment_to_subnet(fasta_aln_file, true_start={}, node_prefix='X', or
 					# len node - pos - 1
 					# So, we need the total length of the nodes, found in seq_len_dict
 
-					local_node_network.node[new_node_name][block_isolate + '_rightend'] = -1 * int(int(seq_len_dict[block_isolate]) - start_block_list[count]['relative_pos'][block_isolate] - 1)
-					local_node_network.node[new_node_name][block_isolate + '_leftend'] = -1 * int(int(seq_len_dict[block_isolate]) - end_block_list[count]['relative_pos'][block_isolate] - 1)
+					local_node_network.nodes[new_node_name][block_isolate + '_rightend'] = -1 * int(int(seq_len_dict[block_isolate]) - start_block_list[count]['relative_pos'][block_isolate] - 1)
+					local_node_network.nodes[new_node_name][block_isolate + '_leftend'] = -1 * int(int(seq_len_dict[block_isolate]) - end_block_list[count]['relative_pos'][block_isolate] - 1)
 
 				else:
 					logging.error("ORIENTATION MISSING")
@@ -1777,11 +1783,11 @@ def fasta_alignment_to_subnet(fasta_aln_file, true_start={}, node_prefix='X', or
 def local_node_realign_new(in_graph, node_ID, seq_fasta_paths_dict):
 
 	logging.info('Fast local node realign: ' + node_ID)
-	logging.info(in_graph.node[node_ID])
+	logging.info(in_graph.nodes[node_ID])
 
 	in_graph = nx.MultiDiGraph(in_graph)
 
-	node_data_dict = in_graph.node[node_ID]
+	node_data_dict = in_graph.nodes[node_ID]
 
 	# Make temp fasta file and record the start positions into a dict
 
@@ -1982,7 +1988,7 @@ def mafft_alignment(fasta_unaln_file, out_aln_name):
 	call([path_to_mafft, '--retree', '2', '--maxiterate', '2', '--quiet', '--thread', '-1', fasta_unaln_file], stdout=out_temp_fa)
 
 
-def progressiveMauve_alignment(path_to_progressiveMauve, fasta_path_list, out_aln_name):
+def progressiveMauve_alignment(path_to_progressiveMauve, fasta_path_list, out_dir_name, out_aln_name):
 	"""
 	A wrapper for progressiveMauve for use in GenGraph for the identification of co-linear blocks
 	:param path_to_progressiveMauve: Absolute path to progressiveMauve executable
@@ -1994,7 +2000,8 @@ def progressiveMauve_alignment(path_to_progressiveMauve, fasta_path_list, out_al
 	# Maybe add --skip-gapped-alignment flag?
 
 	print(path_to_progressiveMauve)
-	progressiveMauve_call = [path_to_progressiveMauve, '--output=globalAlignment_' + out_aln_name, '--scratch-path-1=./mauveTemp', '--scratch-path-2=./mauveTemp'] + fasta_path_list
+	progressiveMauve_call = [path_to_progressiveMauve, '--output=' + out_dir_name + 'globalAlignment_' + out_aln_name, '--scratch-path-1=./mauveTemp', '--scratch-path-2=./mauveTemp'] + fasta_path_list
+	#progressiveMauve_call = [path_to_progressiveMauve, '--output=../data/globalAlignment_batCorona.xmfa', '--scratch-path-1=./mauveTemp', '--scratch-path-2=./mauveTemp'] + fasta_path_list
 
 	return call(progressiveMauve_call, stdout=open(os.devnull, 'wb'))
 
