@@ -2,7 +2,10 @@
 [![Docker](https://img.shields.io/docker/automated/jambler24/gengraph.svg)](https://hub.docker.com/r/jambler24/gengraph)
 
 
-# GenGraph
+# GenGraph-1
+
+*A fork of the GenGraph project*.
+
 A repository for the GenGraph toolkit for the creation and manipulation of graph genomes
 
 This project aims to make genome graphs simple to create, and provide tools for their manipulation and intergration into common workflows.
