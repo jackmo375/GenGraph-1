@@ -12,4 +12,6 @@ source ./config.sh
 
 python ${source}/plotRawPG.py \
 	--inputLabel $1 \
-	--inputPath ${data}/rawPanGenomes/
+	--inputPath ${data}/rawPanGenomes/ \
+	--outLabel $1 \
+	--outPath ${media}/

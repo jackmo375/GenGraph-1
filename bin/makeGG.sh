@@ -7,7 +7,7 @@
 #!/bin/bash
 
 # load shell variables:
-. ./config.sh
+source ./config.sh
 
 # use specified data source (e.g. label=test, batCorona...):
 label=$1
@@ -21,4 +21,8 @@ python ${source}/makeGG.py \
 	--recreate_check
 
 # remove unaligned sequence files:
-rm temp_*
+if ls temp_* 1> /dev/null 2>&1; then
+	rm temp_*
+else
+	echo 'makeGG.sh Error: genome graph was not generated'
+fi

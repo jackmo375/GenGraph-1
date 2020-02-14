@@ -1,7 +1,7 @@
 import random as rd
 
 # Global variables
-NUCL_VEC 	= ['A','C','G','T']
+NUCL_VEC 	= ['-','A','C','G','T']
 N_NUCL_VALS = len(NUCL_VEC)
 
 class RawPanGenome:
@@ -61,17 +61,34 @@ def genGenomeCluster(n_nucleotides, n_genomes, max_dist):
 			n_mutations = rd.randint(0,max_dist-1)
 			mutation_loci = [rd.randint(0,n_nucleotides-1) for i in range(n_mutations)]
 			cluster[i] = mutateGenome(g, mutation_loci)
-		print(cluster[i])
 
 	return RawPanGenome(n_genomes, cluster)
 
 
-def fromFasta(fName):
-	pass
+def fromFasta(fLabel, fDir):
+
+	sequenceFile = fDir+fLabel+'.seq.tsv'
+	seqStream = open(sequenceFile, 'r')
+	# get header line:
+	headers = seqStream.readline()
+	panGenome = []
+	for line in seqStream:
+		pathToGenome = line.strip().split('\t')[2]
+		faaStream = open(pathToGenome, 'r')
+		genome = ''
+		for faaLine in faaStream:
+			if faaLine[0] == '>':
+				pass
+			else:
+				genome = genome + faaLine
+		panGenome = panGenome + [genome]
+
+	return RawPanGenome(len(panGenome), panGenome)
+
 
 # helper functions:
 def genGenome(n_g):
-	return [rd.randint(0,N_NUCL_VALS-1) for i in range(n_g)]
+	return [rd.randint(1,N_NUCL_VALS-1) for i in range(n_g)]
 
 def mutateGenome(genome, loci):
 
@@ -84,11 +101,11 @@ def mutateGenome(genome, loci):
 	return mutated
 
 def mutateAtLocus(genome, locus):
-	genome[locus] = rd.randint(0,N_NUCL_VALS-1)
+	genome[locus] = rd.randint(1,N_NUCL_VALS-1)
 
 def insertAtLocus(genome, locus):
 	#genome = np.insert(genome,locus,rd.randint(0,N_NUCL_VALS-1))
-	genome.insert(locus,rd.randint(0,N_NUCL_VALS-1))
+	genome.insert(locus,rd.randint(1,N_NUCL_VALS-1))
 
 def deleteAtLocus(genome, locus):
 	#genome = np.delete(genome, locus)

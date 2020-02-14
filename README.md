@@ -1,7 +1,3 @@
-[![Build Status](https://travis-ci.org/jambler24/GenGraph.svg?branch=master)](https://travis-ci.org/jambler24/GenGraph)
-[![Docker](https://img.shields.io/docker/automated/jambler24/gengraph.svg)](https://hub.docker.com/r/jambler24/gengraph)
-
-
 # GenGraph-1
 
 *A fork of the GenGraph project*.
